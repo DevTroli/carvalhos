@@ -6,6 +6,15 @@
     <meta name="description" content="Carvalhos Hub: vitrine e central de gestão de produtos, custos e estoque.">
     <title>{% block titulo %}Carvalhos Hub{% endblock %} | Carvalhos</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=11">
+    <style>
+    .usuario{position:relative}
+    .usuario summary{list-style:none;cursor:pointer;color:#fff;padding:8px 12px;border:1px solid rgba(255,255,255,.6);border-radius:8px;font-size:.95rem}
+    .usuario summary::-webkit-details-marker{display:none}
+    .usuario summary::after{content:" \25BE"}
+    .usuario ul{position:absolute;right:0;top:calc(100% + 6px);min-width:190px;background:#fff;border-radius:10px;box-shadow:var(--sombra);list-style:none;padding:6px;z-index:50}
+    .usuario li a,.usuario li button{display:block;width:100%;text-align:left;color:var(--texto);padding:9px 12px;border-radius:6px;background:none;border:0;font:inherit;font-size:.95rem;cursor:pointer;text-decoration:none}
+    .usuario li a:hover,.usuario li button:hover{background:var(--mint-100);color:var(--verde-900)}
+    </style>
 </head>
 <body>
     <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -18,20 +27,26 @@
             </a>
             <nav aria-label="Menu principal">
                 <ul class="menu">
+                    <li><a href="{% url 'quem_somos' %}" {% if atual == 'quem_somos' %}aria-current="page"{% endif %}>Quem Somos</a></li>
+                    <li><a href="{% url 'produtos' %}" {% if atual == 'produtos' %}aria-current="page"{% endif %}>Produtos</a></li>
+                    <li><a href="{% url 'add_contato' %}" {% if atual == 'add_contato' %}aria-current="page"{% endif %}>Contato</a></li>
                     {% if user.is_authenticated %}
-                        <li><a href="{% url 'quem_somos' %}" {% if atual == 'quem_somos' %}aria-current="page"{% endif %}>Quem Somos</a></li>
-                        <li><a href="{% url 'produtos' %}" {% if atual == 'produtos' %}aria-current="page"{% endif %}>Produtos</a></li>
-                        <li><a href="{% url 'add_contato' %}" {% if atual == 'add_contato' %}aria-current="page"{% endif %}>Contato</a></li>
-                        <li><a class="destaque" href="{% url 'dashboard' %}" {% if atual == 'dashboard' %}aria-current="page"{% endif %}>Dashboard</a></li>
+                        <li><a href="{% url 'pedidos' %}" {% if atual == 'pedidos' %}aria-current="page"{% endif %}>Meus pedidos</a></li>
                         <li>
-                            <form class="inline" method="post" action="{% url 'logout' %}">
-                                {% csrf_token %}<button class="contorno" type="submit">Sair</button>
-                            </form>
+                            <details class="usuario">
+                                <summary>{{ user.first_name|default:user.username }}</summary>
+                                <ul>
+                                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                                    <li><a href="{% url 'perfil' %}">Meu perfil</a></li>
+                                    <li>
+                                        <form method="post" action="{% url 'logout' %}">
+                                            {% csrf_token %}<button type="submit">Sair</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </details>
                         </li>
                     {% else %}
-                        <li><a href="{% url 'quem_somos' %}" {% if atual == 'quem_somos' %}aria-current="page"{% endif %}>Quem Somos</a></li>
-                        <li><a href="{% url 'produtos' %}" {% if atual == 'produtos' %}aria-current="page"{% endif %}>Produtos</a></li>
-                        <li><a href="{% url 'add_contato' %}" {% if atual == 'add_contato' %}aria-current="page"{% endif %}>Contato</a></li>
                         <li><a class="destaque" href="{% url 'login' %}" {% if atual == 'login' %}aria-current="page"{% endif %}>Entrar</a></li>
                     {% endif %}
                 </ul>

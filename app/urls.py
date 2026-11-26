@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import views, views_pedidos
 
 urlpatterns = [
     # públicas
@@ -9,8 +9,9 @@ urlpatterns = [
     path("produtos", views.produtos, name="produtos"),
     path("contato/add-contato/", views.add_contato, name="add_contato"),
     # pedidos (cliente logado)
-    path("comprar/<int:id_servico>/", views.comprar, name="comprar"),
-    path("pedidos/", views.meus_pedidos, name="pedidos"),
+    path("comprar/<int:id_servico>/", views_pedidos.comprar, name="comprar"),
+    path("pedidos/", views_pedidos.meus_pedidos, name="pedidos"),
+    path("pedidos/<int:id_pedido>/confirmado/", views_pedidos.pedido_confirmado, name="pedido_confirmado"),
     # gestão: contatos
     path("contato/contatos/", views.contatos, name="contatos"),
     path("contato/del-contato/<int:id_contato>/", views.del_contato, name="del_contato"),

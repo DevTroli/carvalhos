@@ -2,13 +2,12 @@
 {% block titulo %}Produtos{% endblock %}
 {% block conteudo %}
 <div class="pagina-titulo centro">
-    <span class="sobretitulo">Nossos produtos</span>
-    <h1>Produtos e Ofertas</h1>
-    <p>Confira os produtos da Carvalhos e as ofertas de lojas parceiras.</p>
+    <h1>Produtos</h1>
+    <p>Produtos da Carvalhos e ofertas de lojas parceiras.</p>
 </div>
 
 <h2 class="secao">Produtos da Nossa Loja</h2>
-<p class="secao-sub">{% if user.is_authenticated %}Clique em Comprar para adicionar ao seu pedido.{% else %}<a href="{% url 'login' %}?next={% url 'produtos' %}">Entre</a> para comprar. Visitantes podem ver tudo.{% endif %}</p>
+{% if not user.is_authenticated %}<p class="secao-sub"><a href="{% url 'login' %}?next={% url 'produtos' %}">Entre</a> para comprar.</p>{% endif %}
 <div class="vitrine">
     {% for p in servicos %}
     <article class="produto local">
@@ -17,7 +16,7 @@
             <h3>{{ p.nome }}</h3>
             {% if p.categoria %}<span class="selo neutro">{{ p.categoria }}</span>{% endif %}
             {% if p.descricao %}<p class="desc">{{ p.descricao }}</p>{% endif %}
-            <p class="preco">R$ {{ p.preco }}</p>
+            <p class="preco">R$ {{ p.preco|floatformat:"2g" }}</p>
             <div class="rodape-prod">
                 {% if user.is_authenticated %}
                 <form method="post" action="{% url 'comprar' p.id %}">{% csrf_token %}<button class="btn btn-bloco" type="submit">Comprar<span class="sr-only"> {{ p.nome }}</span></button></form>
@@ -32,13 +31,12 @@
 </div>
 
 <h2 class="secao">Produtos das Lojas Parceiras</h2>
-<p class="secao-sub">Ofertas vindas de uma API externa.</p>
 {% if api_ok %}
 <div class="vitrine">
     {% for prod in produtos_api %}
     <article class="produto">
         <div class="foto"><img src="{{ prod.image }}" alt="{{ prod.title }}" loading="lazy"></div>
-        <div class="corpo"><h3>{{ prod.title|truncatechars:50 }}</h3><p class="desc">{{ prod.description }}</p><p class="preco">$ {{ prod.price }}</p></div>
+        <div class="corpo"><h3>{{ prod.title|truncatechars:50 }}</h3><p class="desc">{{ prod.description }}</p><p class="preco">US$ {{ prod.price|floatformat:"2g" }}</p></div>
     </article>
     {% empty %}<p class="vazio">Nenhum produto encontrado.</p>{% endfor %}
 </div>
