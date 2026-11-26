@@ -1,9 +1,36 @@
 {% extends 'template.html' %}
+{% block titulo %}Início{% endblock %}
+{% block conteudo %}
+<section class="hero" aria-labelledby="tit-hero">
+    <span class="sobretitulo">Central de produtos Carvalhos</span>
+    <h1 id="tit-hero">Seus produtos, custos e estoque em um só lugar</h1>
+    <p>A Carvalhos vende no Mercado Livre e usa este site para divulgar os produtos e acompanhar quanto custa, quanto sobra em cada venda e o que precisa ser reposto.</p>
+    <div class="acoes">
+        <a class="btn btn-mint" href="{% url 'produtos' %}">Ver produtos</a>
+        <a class="btn btn-sec" href="{% url 'add_contato' %}">Fale conosco</a>
+    </div>
+</section>
 
-{% block titulo %} Home | Django {% endblock %}
+<h2 class="secao">O que você encontra aqui</h2>
+<p class="secao-sub">Duas áreas, cada uma com um objetivo claro.</p>
+<div class="grade-2">
+    <article class="destaque-card"><h3>Vitrine pública</h3><p>Qualquer pessoa vê os produtos da Carvalhos, a equipe e pode mandar uma mensagem, sem criar conta.</p></article>
+    <article class="destaque-card"><h3>Área de gestão</h3><p>Com login: cadastro de produtos, preço de custo e de venda, estoque, custos fixos e variáveis e relatórios.</p></article>
+    <article class="destaque-card"><h3>Compra simples</h3><p>Clientes cadastrados adicionam produtos aos pedidos e acompanham o total em Meus Pedidos.</p></article>
+    <article class="destaque-card"><h3>Dados organizados</h3><p>Equipe em banco remoto, produtos e pedidos em banco local, e exportação para Excel.</p></article>
+</div>
 
-{% block conteudo %} 
-    <p>
-        Django é um framework web de alto nível escrito em Python, criado para facilitar o desenvolvimento rápido, seguro e limpo de aplicações na internet.
-    </p>
+{% if destaques %}
+<h2 class="secao">Alguns produtos</h2>
+<div class="vitrine">
+    {% for p in destaques %}
+    <article class="produto local">
+        <div class="foto">{% if p.imagem %}<img src="{{ p.imagem.url }}" alt="{{ p.nome }}">{% else %}<span aria-hidden="true">{{ p.nome|slice:":1" }}</span>{% endif %}</div>
+        <div class="corpo"><h3>{{ p.nome }}</h3><p class="preco">R$ {{ p.preco }}</p></div>
+    </article>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="faixa"><strong>Comece agora.</strong> Crie sua conta em poucos segundos para comprar e acompanhar seus pedidos. <a href="{% url 'cadastro' %}">Criar conta</a></div>
 {% endblock %}

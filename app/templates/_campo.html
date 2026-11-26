@@ -1,0 +1,11 @@
+{# Campo de formulário acessível: rótulo visível, ajuda e erro ligados ao campo. #}
+<div class="campo{% if field.errors %} tem-erro{% endif %}{% if field.field.widget.input_type == 'checkbox' %} campo-check{% endif %}">
+    {% if field.field.widget.input_type == 'checkbox' %}
+        {{ field }}<label for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {% else %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="obrig" aria-hidden="true">*</span><span class="sr-only">(obrigatório)</span>{% endif %}</label>
+        {{ field }}
+    {% endif %}
+    {% if field.help_text %}<div class="ajuda" id="ajuda-{{ field.html_name }}">{{ field.help_text|safe }}</div>{% endif %}
+    {% for e in field.errors %}<div class="erro-campo" role="alert">{{ e }}</div>{% endfor %}
+</div>

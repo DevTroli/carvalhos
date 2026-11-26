@@ -1,0 +1,21 @@
+{% extends 'template.html' %}
+{% block titulo %}Meus Pedidos{% endblock %}
+{% block conteudo %}
+<div class="medio">
+<div class="cab-flex">
+    <div><h1>Meus Pedidos</h1><p>Acompanhe os produtos que você adquiriu.</p></div>
+    <a class="btn" href="{% url 'produtos' %}">Continuar comprando</a>
+</div>
+{% for p in pedidos %}
+<article class="pedido">
+    {% if p.servico.imagem %}<img class="miniatura" src="{{ p.servico.imagem.url }}" alt="">{% else %}<span class="sem-img" aria-hidden="true">{{ p.servico.nome|slice:":1" }}</span>{% endif %}
+    <div class="info"><strong>{{ p.servico.nome }}</strong><small>Comprado em {{ p.criado_em|date:"d/m/Y H:i" }}</small></div>
+    <div class="valor"><small style="font-weight:400;color:#52625a">Valor</small><br>R$ {{ p.preco }}</div>
+</article>
+{% empty %}
+<p class="vazio">Você ainda não fez nenhum pedido. <a href="{% url 'produtos' %}">Ver produtos</a></p>
+{% endfor %}
+{% if pedidos %}<div class="card total" style="border-top-width:1px"><span>Total das compras</span><span>R$ {{ total }}</span></div>{% endif %}
+<p class="rodape-form"><a href="{% url 'dashboard' %}">Voltar ao dashboard</a></p>
+</div>
+{% endblock %}

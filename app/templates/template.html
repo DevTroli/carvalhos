@@ -1,27 +1,53 @@
-{% load static %}
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block titulo %}{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <meta name="description" content="Carvalhos Hub: vitrine e central de gestão de produtos, custos e estoque.">
+    <title>{% block titulo %}Carvalhos Hub{% endblock %} | Carvalhos</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=11">
 </head>
 <body>
-    <header>
-        <h1><a href="{% url 'index' %}">DJ ango</a></h1>
-        <nav>
-            <a href="{% url 'login' %}">Login</a>
-            <a href="#">Quem Somos</a>
-            <a href="{% url 'produtos' %}">Produtos</a>
-            <a href="{% url 'servicos' %}">Serviços</a>
-            <a href="{% url 'add_contato' %}">Contato</a>
-        </nav>
-    </header>    
-    <main>
-        {% block conteudo %}
-        {% endblock %}
+    <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+    {% with atual=request.resolver_match.url_name %}
+    <header class="topo">
+        <div class="topo-in">
+            <a class="marca" href="{% url 'index' %}" aria-label="Carvalhos Hub, página inicial">
+                <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="16" fill="#4fd1a1"/><path d="M16 5c-3 2-6 4-6 8 0 2 1 3 2 4-2 0-4 2-4 4 0 3 3 4 6 4v2h4v-2c3 0 6-1 6-4 0-2-2-4-4-4 1-1 2-2 2-4 0-4-3-6-6-8z" fill="#082b1e"/></svg>
+                Carvalhos Hub
+            </a>
+            <nav aria-label="Menu principal">
+                <ul class="menu">
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'quem_somos' %}" {% if atual == 'quem_somos' %}aria-current="page"{% endif %}>Quem Somos</a></li>
+                        <li><a href="{% url 'produtos' %}" {% if atual == 'produtos' %}aria-current="page"{% endif %}>Produtos</a></li>
+                        <li><a href="{% url 'add_contato' %}" {% if atual == 'add_contato' %}aria-current="page"{% endif %}>Contato</a></li>
+                        <li><a class="destaque" href="{% url 'dashboard' %}" {% if atual == 'dashboard' %}aria-current="page"{% endif %}>Dashboard</a></li>
+                        <li>
+                            <form class="inline" method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}<button class="contorno" type="submit">Sair</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'quem_somos' %}" {% if atual == 'quem_somos' %}aria-current="page"{% endif %}>Quem Somos</a></li>
+                        <li><a href="{% url 'produtos' %}" {% if atual == 'produtos' %}aria-current="page"{% endif %}>Produtos</a></li>
+                        <li><a href="{% url 'add_contato' %}" {% if atual == 'add_contato' %}aria-current="page"{% endif %}>Contato</a></li>
+                        <li><a class="destaque" href="{% url 'login' %}" {% if atual == 'login' %}aria-current="page"{% endif %}>Entrar</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+    {% endwith %}
+    <main id="conteudo" tabindex="-1">
+        {% if messages %}
+        <ul class="mensagens" role="status" aria-live="polite">
+            {% for m in messages %}<li class="msg {{ m.tags }}">{{ m }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+        {% block conteudo %}{% endblock %}
     </main>
-    
+    <footer class="rodape">Carvalhos Hub · Projeto acadêmico de Web III · Produtos também no <a href="https://lista.mercadolivre.com.br/_CustId_3436770351">Mercado Livre</a></footer>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -1,17 +1,25 @@
 {% extends 'template.html' %}
-
-{% block titulo %} Dashboard {% endblock %}
-
+{% block titulo %}Dashboard{% endblock %}
 {% block conteudo %}
-    <h2>Dashboard</h2>
-
-    <p>Olá, <strong>{{ user.username }}</strong>!</p>
-
-    <p><a href="{% url 'perfil' %}">Meu Perfil</a></p>
-
-    <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <input type="submit" value="Sair">
-    </form>
-
+<section class="boas-vindas">
+    <span class="sobretitulo">Painel do usuário</span>
+    <h1>Olá, {{ user.first_name|default:user.username }}!</h1>
+    <p>Bem-vindo ao seu painel. Escolha uma das opções abaixo para continuar.</p>
+</section>
+<h2 class="secao" style="margin-top:0">Meu espaço</h2>
+<p class="secao-sub">Gerencie suas informações, seus pedidos e o dia a dia da Carvalhos.</p>
+<div class="grade-2">
+    <a class="atalho" href="{% url 'perfil' %}"><span class="sobretitulo">Minha conta</span><h3>Editar Perfil</h3><p>Consulte e atualize seus dados pessoais.</p><span class="ir">Acessar perfil →</span></a>
+    <a class="atalho" href="{% url 'contatos' %}"><span class="sobretitulo">Comunicação</span><h3>Contatos</h3><p>Consulte e gerencie as mensagens recebidas.</p><span class="ir">Gerenciar contatos →</span></a>
+    <a class="atalho" href="{% url 'servicos' %}"><span class="sobretitulo">Gerenciamento</span><h3>Serviços</h3><p>Produtos, preço de custo e venda, estoque e margem.</p><span class="ir">Gerenciar produtos →</span></a>
+    <a class="atalho" href="{% url 'integrantes' %}"><span class="sobretitulo">Nossa equipe</span><h3>Equipe</h3><p>Integrantes, cargos e biografias da equipe.</p><span class="ir">Gerenciar equipe →</span></a>
+    <a class="atalho" href="{% url 'pedidos' %}"><span class="sobretitulo">Minhas compras</span><h3>Meus Pedidos</h3><p>Acompanhe suas compras e o total gasto.</p><span class="ir">Visualizar pedidos →</span></a>
+    <a class="atalho" href="{% url 'relatorios' %}"><span class="sobretitulo">Análises</span><h3>Relatórios</h3><p>Gráficos, custos, margem e exportação para Excel.</p><span class="ir">Acessar relatórios →</span></a>
+</div>
+<h2 class="secao">Rotina da loja</h2>
+<p class="secao-sub">Atalhos para o trabalho diário com estoque e custos.</p>
+<div class="grade-2">
+    <a class="atalho" href="{% url 'entrada_estoque' %}"><span class="sobretitulo">Estoque</span><h3>Entrada de carregamento</h3><p>Registre vários produtos de uma vez, manualmente ou por planilha CSV.</p><span class="ir">Registrar entrada →</span></a>
+    <a class="atalho" href="{% url 'custos' %}"><span class="sobretitulo">Finanças</span><h3>Custos fixos e variáveis</h3><p>Veja quanto custa operar e quantas vendas cobrem o custo fixo.</p><span class="ir">Gerenciar custos →</span></a>
+</div>
 {% endblock %}
