@@ -3,6 +3,7 @@
 Tudo que muda entre ambiente local e producao vem de variaveis de ambiente
 (veja .env.example). Nada sensivel fica versionado.
 """
+
 import os
 from pathlib import Path
 
@@ -76,13 +77,15 @@ WSGI_APPLICATION = "projeto.wsgi.application"
 # Banco "local" do Django (produtos, pedidos, contatos, usuarios).
 # Sem DATABASE_URL usa SQLite; em producao use o Postgres da hospedagem.
 DATABASES = {
-    "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}", conn_max_age=600
+    "default": dj_database_url.parse(
+        os.getenv("DATABASE_URL") or f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
     )
 }
-
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},

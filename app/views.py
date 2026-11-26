@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 # Área de gestão: hoje exige login (como nas telas de referência do PDF).
 # Para restringir só à equipe, troque por user_passes_test(lambda u: u.is_staff).
-gestao_required = login_required
+from login.permissoes import gestao_required
 
 
 # ---------------------------------------------------------------- páginas públicas
