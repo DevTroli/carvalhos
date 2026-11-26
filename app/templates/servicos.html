@@ -1,105 +1,72 @@
 {% extends 'template.html' %}
+{% block titulo %}Produtos (gestão){% endblock %}
+{% block conteudo %}
+<div class="cab-flex">
+    <div><span class="sobretitulo">Painel administrativo</span><h1>Gerenciamento de Produtos</h1><p>Cadastre, consulte e acompanhe preço, margem e estoque.</p></div>
+    <div class="acoes-tab">
+        <a class="btn btn-sec" href="{% url 'entrada_estoque' %}">Entrada de estoque</a>
+        <a class="btn" href="{% url 'addServicos' %}">+ Novo produto</a>
+    </div>
+</div>
 
-{% block titulo %} Serviços | Django {% endblock %}
+<div class="kpis">
+    <div class="kpi"><div class="rot">Total de produtos</div><div class="val">{{ estat.total }}</div><div class="det">{{ estat.ativos }} ativo(s)</div></div>
+    <div class="kpi"><div class="rot">Menor preço</div><div class="val">{% if estat.menor is not None %}R$ {{ estat.menor|floatformat:2 }}{% else %}—{% endif %}</div></div>
+    <div class="kpi"><div class="rot">Maior preço</div><div class="val">{% if estat.maior is not None %}R$ {{ estat.maior|floatformat:2 }}{% else %}—{% endif %}</div></div>
+    <div class="kpi"><div class="rot">Quanto sobra por venda</div><div class="val">{% if estat.margem is not None %}R$ {{ estat.margem|floatformat:2 }}{% else %}—{% endif %}</div><div class="det">média por unidade</div></div>
+    <div class="kpi"><div class="rot">Estoque baixo</div><div class="val">{{ estat.baixo }}</div><div class="det">{% if estat.baixo %}<a href="?estoque=baixo">Ver quais</a>{% else %}Tudo em dia{% endif %}</div></div>
+</div>
 
-{% block conteudo %} 
-    <h2> Nossos Serviços </h2>
-
-    {% if tem_servicos %}
-        <p>{{ total_servicos }} serviço(s) encontrados</p>
-
-        {% if mais_barato %}
-        <p>Menor preço: R$ {{ mais_barato.preco }}</p>
-        {% endif %}
-
-        {% if mais_caro %}
-        <p>Maior preço: R$ {{ mais_caro.preco }}</p>
-        {% endif %}
-
-    {% else %}
-        <p>Nenhum serviço encontrado.</p>
-    {% endif %}
-
-    <p><a class="add-link" href="{% url 'addServicos' %}">Adicionar Serviço</a></p>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Serviço</th>
-                <th>Descrição</th>
-                <th>Preço</th>
-                <th>Imagem</th>
-                <th colspan="2">Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for servico in servicos %}
-            <tr>
-                <td>{{ servico.nome }}</td>
-                <td>{{ servico.descricao }}</td>
-                <td>R$ {{ servico.preco }}</td>
-                <td>{% if servico.imagem %}<img src="media/{{ servico.imagem }}" width="120" alt="{{ servico.nome }}">{% endif %}</td>
-                <td><a class="action-link" href="{% url 'editServicos' servico.id %}">Editar</a></td>
-                <td><a class="delete-button" href="{% url 'delServicos' servico.id %}">Excluir</a></td>
-            </tr>
-        {% empty %}
-            <tr><td colspan="6">Nenhum serviço cadastrado.</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <br>
-
-    <h3>Buscar Serviço</h3>
-
-    <form method="GET">
-        <input type="text" name="busca"
-            placeholder="Digite o nome do serviço"
-            value="{{ busca|default:'' }}">
-        <button type="submit">Buscar</button>
+<section class="card filtros" aria-labelledby="tit-filtros">
+    <h2 id="tit-filtros">Filtros e pesquisa</h2>
+    <p class="sub">Encontre rapidamente o produto desejado.</p>
+    <form method="get" class="busca" role="search">
+        <label class="sr-only" for="busca">Pesquisar produto pelo nome</label>
+        <input type="search" id="busca" name="busca" placeholder="Pesquisar produto pelo nome" value="{{ busca }}">
+        {% if categoria %}<input type="hidden" name="categoria" value="{{ categoria }}">{% endif %}
+        {% if faixa %}<input type="hidden" name="preco" value="{{ faixa }}">{% endif %}
+        {% if ordem %}<input type="hidden" name="ordem" value="{{ ordem }}">{% endif %}
+        <button class="btn" type="submit">Buscar</button>
     </form>
-    <Br>
+    <div class="filtro-grupo"><h3>Filtrar por categoria</h3><div class="chips">
+        <a class="chip" href="?busca={{ busca }}&preco={{ faixa }}&ordem={{ ordem }}" {% if not categoria %}aria-current="true"{% endif %}>Todas</a>
+        {% for c in categorias %}<a class="chip" href="?busca={{ busca }}&categoria={{ c.id }}&preco={{ faixa }}&ordem={{ ordem }}" {% if categoria == c.id|stringformat:"s" %}aria-current="true"{% endif %}>{{ c.nome }}</a>{% endfor %}
+    </div></div>
+    <div class="filtro-grupo"><h3>Filtrar por preço</h3><div class="chips">
+        <a class="chip" href="?busca={{ busca }}&categoria={{ categoria }}&ordem={{ ordem }}" {% if not faixa %}aria-current="true"{% endif %}>Qualquer</a>
+        {% for k, nome in faixas.items %}<a class="chip" href="?busca={{ busca }}&categoria={{ categoria }}&preco={{ k }}&ordem={{ ordem }}" {% if faixa == k %}aria-current="true"{% endif %}>{{ nome }}</a>{% endfor %}
+    </div></div>
+    <div class="filtro-grupo"><h3>Ordenar</h3><div class="chips">
+        {% for k, nome in ordens.items %}<a class="chip" href="?busca={{ busca }}&categoria={{ categoria }}&preco={{ faixa }}&ordem={{ k }}" {% if ordem == k %}aria-current="true"{% endif %}>{{ nome }}</a>{% endfor %}
+        <a class="chip" href="?estoque=baixo" {% if so_baixo %}aria-current="true"{% endif %}>Só estoque baixo</a>
+    </div></div>
+</section>
 
-    <h3>Filtrar por categoria</h3>
-
-    {% for categoria_item in categorias %}
-
-        <a href="?categoria={{ categoria_item.id }}">
-            <button>
-                {{ categoria_item.nome }}
-            </button>
-        </a>
-        <br><br>
-    {% endfor %}
-    <br><Br>
-
-    <h3>Filtrar por preço</h3>
-
-    <a href="?preco=baixo">
-        <button>Menor preço</button>
-    </a>
-
-    <a href="?preco=medio">
-        <button>Maior preço</button>
-    </a>
-
-    <a href="?preco=alto">
-        <button>Nome</button>
-    </a>
-
-        <br><Br>
-
-    <h3>Ordernar</h3>
-
-    <a href="?ordem=menor">
-        <button>Menor preço</button>
-    </a>
-
-    <a href="?ordem=maior">
-        <button>Maior preço</button>
-    </a>
-
-    <a href="?ordem=nome">
-        <button>Nome</button>
-    </a>
-    
+<section aria-labelledby="tit-lista">
+<h2 class="secao" id="tit-lista">Produtos cadastrados</h2>
+<div class="tabela-wrap card" style="padding:0">
+<table>
+    <caption class="sr-only">Produtos cadastrados com custo, venda, margem e estoque</caption>
+    <thead><tr><th scope="col">Imagem</th><th scope="col">Produto</th><th scope="col" class="num">Custo</th><th scope="col" class="num">Venda</th><th scope="col" class="num">Sobra por venda</th><th scope="col" class="num">Estoque</th><th scope="col">Situação</th><th scope="col">Ações</th></tr></thead>
+    <tbody>
+    {% for s in servicos %}
+        <tr>
+            <td>{% if s.imagem %}<img class="miniatura" src="{{ s.imagem.url }}" alt="">{% else %}<span class="sem-img" aria-hidden="true">{{ s.nome|slice:":1" }}</span>{% endif %}</td>
+            <td><strong>{{ s.nome }}</strong>{% if s.categoria %}<br><small>{{ s.categoria }}</small>{% endif %}</td>
+            <td class="num">R$ {{ s.preco_custo }}</td>
+            <td class="num"><strong>R$ {{ s.preco }}</strong></td>
+            <td class="num">R$ {{ s.margem|floatformat:2 }}<br><small>{{ s.margem_percentual|floatformat:0 }}%</small></td>
+            <td class="num">{{ s.estoque }}<br><small>mín. {{ s.estoque_minimo }}</small></td>
+            <td>{% if not s.ativo %}<span class="selo neutro">Inativo</span>{% elif s.estoque_baixo %}<span class="selo alerta">Estoque baixo</span>{% else %}<span class="selo">Ativo</span>{% endif %}</td>
+            <td><div class="acoes-tab">
+                <a class="btn btn-sec btn-pq" href="{% url 'editServicos' s.id %}">Editar<span class="sr-only"> {{ s.nome }}</span></a>
+                <form method="post" action="{% url 'delServicos' s.id %}" onsubmit="return confirm('Excluir {{ s.nome|escapejs }}?');">{% csrf_token %}<button class="btn btn-perigo btn-pq" type="submit">Excluir<span class="sr-only"> {{ s.nome }}</span></button></form>
+            </div></td>
+        </tr>
+    {% empty %}<tr><td colspan="8">Nenhum produto encontrado com esses filtros.</td></tr>{% endfor %}
+    </tbody>
+</table>
+</div>
+</section>
+<p class="rodape-form"><a href="{% url 'dashboard' %}">Voltar ao dashboard</a></p>
 {% endblock %}

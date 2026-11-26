@@ -1,58 +1,59 @@
 {% extends 'template.html' %}
-
-{% block titulo %}Gráficos{% endblock %}
-
+{% block titulo %}Relatórios{% endblock %}
 {% block conteudo %}
-
-<div style="width: 500px; height: 250px; margin-bottom: 30px;">
-    <canvas id="graficoCategorias"></canvas>
+<style>
+.graficos{grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:20px}
+.grafico-card{padding:22px}
+.grafico-box{height:340px}
+</style>
+<div class="cab-flex">
+    <h1>Relatórios</h1>
+    <a class="btn" href="{% url 'exportar_excel' %}">Exportar para Excel</a>
 </div>
 
-<div style="width: 350px; height: 250px;">
-    <canvas id="graficoStatus"></canvas>
+<div class="kpis">
+    <div class="kpi"><div class="rot">Produtos</div><div class="val">{{ total }}</div></div>
+    <div class="kpi"><div class="rot">Ativos</div><div class="val">{{ ativos }}</div></div>
+    <div class="kpi"><div class="rot">Inativos</div><div class="val">{{ inativos }}</div></div>
 </div>
 
-{% comment %} CONVERTE OS DADOS RECEBIDOSS DO DJANGO EM JSON {% endcomment %}
-{{ categorias_labels|json_script:"categorias" }}
-{{ categorias_valores|json_script:"quantidades" }}
+<h2 class="secao" style="margin-top:0">Custos e margem</h2>
+<div class="kpis">
+    <div class="kpi"><div class="rot">Custo fixo (mês)</div><div class="val">R$ {{ ind.custo_fixo|floatformat:2 }}</div></div>
+    <div class="kpi"><div class="rot">Variável (unidade)</div><div class="val">R$ {{ ind.custo_variavel|floatformat:2 }}</div></div>
+    <div class="kpi"><div class="rot">Sobra por venda</div><div class="val">R$ {{ ind.margem_media|floatformat:2 }}</div></div>
+    <div class="kpi escuro"><div class="rot">Ponto de equilíbrio</div><div class="val">{% if ind.ponto_equilibrio is not None %}{{ ind.ponto_equilibrio }} un.{% else %}—{% endif %}</div><div class="det">vendas por mês</div></div>
+    <div class="kpi"><div class="rot">Valor em estoque</div><div class="val">R$ {{ ind.valor_estoque|floatformat:2 }}</div></div>
+    <div class="kpi"><div class="rot">Repor</div><div class="val">{{ ind.estoque_baixo }}</div><div class="det">com estoque baixo</div></div>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<h2 class="secao" style="margin-top:0">Gráficos</h2>
+<div class="graficos">
+    <section class="grafico-card"><h3>Produtos por categoria</h3><div class="grafico-box"><canvas id="g-cat" role="img" aria-label="Gráfico de barras de produtos por categoria"></canvas></div></section>
+    <section class="grafico-card"><h3>Ativos e inativos</h3><div class="grafico-box"><canvas id="g-status" role="img" aria-label="Gráfico de rosca de produtos ativos e inativos"></canvas></div></section>
+    <section class="grafico-card"><h3>Quanto sobra por venda (R$)</h3><div class="grafico-box"><canvas id="g-custo" role="img" aria-label="Gráfico de barras da margem por produto"></canvas></div></section>
+    <section class="grafico-card"><h3>Estoque e mínimo</h3><div class="grafico-box"><canvas id="g-estoque" role="img" aria-label="Gráfico de barras do estoque atual e mínimo por produto"></canvas></div></section>
+</div>
+<p class="rodape-form"><a href="{% url 'dashboard' %}">Voltar ao dashboard</a></p>
+{{ grafico|json_script:"dados-grafico" }}
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
-/*CONVERTE OS DADOS JSON EM ARRAY*/
-    const categorias = JSON.parse(document.getElementById('categorias').textContent);
-    const quantidades = JSON.parse(document.getElementById('quantidades').textContent);
-    const graficoCategorias = document.getElementById('graficoCategorias');
-    const graficoStatus = document.getElementById('graficoStatus');
-
-    new Chart(document.getElementById('graficoCategorias'), {
-    type: 'bar',
-    data: {
-        labels: categorias,
-        datasets: [{
-            label: 'Serviços por categoria',
-            data: quantidades,
-            backgroundColor: '#0C4B33'
-            }]
-        }
-    });
-    new Chart(graficoStatus, {
-    type: 'doughnut',
-    data: {
-        labels: ['Ativos', 'Inativos'],
-        datasets: [{
-            data: [
-                {{ servicos_ativos }},
-                {{ servicos_inativos }}
-            ],
-            backgroundColor: [
-            '#0C4B33',
-            '#D1A45B'
-            ]
-        }]
-    }
-})
- 
+(function () {
+    var d = JSON.parse(document.getElementById('dados-grafico').textContent);
+    if (typeof Chart === 'undefined') { return; }
+    var verde = '#0b3d2a', mint = '#4fd1a1', ouro = '#d1a45b';
+    var opc = { responsive: true, maintainAspectRatio: false };
+    new Chart('g-cat', { type: 'bar', data: { labels: d.categorias, datasets: [{ label: 'Produtos', data: d.quantidades, backgroundColor: verde }] },
+        options: Object.assign({ plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }, opc) });
+    new Chart('g-status', { type: 'doughnut', data: { labels: ['Ativos', 'Inativos'], datasets: [{ data: [d.ativos, d.inativos], backgroundColor: [verde, ouro] }] }, options: opc });
+    new Chart('g-custo', { type: 'bar', data: { labels: d.margem_nomes, datasets: [{ label: 'R$ por unidade', data: d.margem_valores, backgroundColor: mint }] },
+        options: Object.assign({ indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }, opc) });
+    new Chart('g-estoque', { type: 'bar', data: { labels: d.estoque_nomes, datasets: [
+        { label: 'Estoque atual', data: d.estoque_qtd, backgroundColor: verde },
+        { label: 'Mínimo', data: d.estoque_min, backgroundColor: ouro } ] },
+        options: Object.assign({ scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }, opc) });
+})();
 </script>
-
 {% endblock %}

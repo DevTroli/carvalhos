@@ -1,9 +1,37 @@
 {% extends 'template.html' %}
+{% block titulo %}Início{% endblock %}
+{% block conteudo %}
+<section class="hero" aria-labelledby="tit-hero">
+    <span class="sobretitulo">Carvalhos E-commerce</span>
+    <h1 id="tit-hero">Produtos da Carvalhos, direto da loja</h1>
+    <p>Veja o catálogo, conheça a equipe e fale com a gente.</p>
+    <div class="acoes">
+        <a class="btn btn-mint" href="{% url 'produtos' %}">Ver produtos</a>
+        <a class="btn btn-sec" href="{% url 'add_contato' %}">Fale conosco</a>
+    </div>
+</section>
 
-{% block titulo %} Home | Django {% endblock %}
+<h2 class="secao">Como funciona</h2>
+<div class="grade">
+    <article class="destaque-card"><h3>Veja os produtos</h3><p>Catálogo aberto, sem precisar de conta.</p></article>
+    <article class="destaque-card"><h3>Crie sua conta</h3><p>Leva menos de um minuto.</p></article>
+    <article class="destaque-card"><h3>Compre e acompanhe</h3><p>Seus pedidos ficam em Meus Pedidos.</p></article>
+    <article class="destaque-card"><h3>Tire dúvidas</h3><p>Mande uma mensagem a qualquer momento.</p></article>
+</div>
 
-{% block conteudo %} 
-    <p>
-        Django é um framework web de alto nível escrito em Python, criado para facilitar o desenvolvimento rápido, seguro e limpo de aplicações na internet.
-    </p>
+{% if destaques %}
+<h2 class="secao">Alguns produtos</h2>
+<div class="vitrine">
+    {% for p in destaques %}
+    <article class="produto local">
+        <div class="foto">{% if p.imagem %}<img src="{{ p.imagem.url }}" alt="{{ p.nome }}">{% else %}<span aria-hidden="true">{{ p.nome|slice:":1" }}</span>{% endif %}</div>
+        <div class="corpo"><h3>{{ p.nome }}</h3><p class="preco">R$ {{ p.preco }}</p></div>
+    </article>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if not user.is_authenticated %}
+<div class="faixa"><strong>Quer comprar?</strong> <a href="{% url 'cadastro' %}">Criar conta</a></div>
+{% endif %}
 {% endblock %}

@@ -1,21 +1,25 @@
 {% extends 'template.html' %}
-
-{% block titulo %} Login {% endblock %}
-
+{% block titulo %}Entrar{% endblock %}
 {% block conteudo %}
-    <h2>Login</h2>
-
-    <form method="post">
+<div class="pagina-titulo centro"><span class="sobretitulo">Área restrita</span><h1>Bem-vindo de volta!</h1><p>Acesse sua conta para continuar.</p></div>
+<div class="card estreito">
+    <h2>Entrar na sua conta</h2><p class="sub">Informe seus dados de acesso abaixo.</p>
+    <form method="post" novalidate>
         {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="Entrar">
+        <input type="hidden" name="next" value="{{ next }}">
+        {% if form.non_field_errors %}<div class="erros-form" role="alert">Usuário ou senha incorretos. Confira os dados e tente de novo.</div>{% endif %}
+        <div class="campo"><label for="id_username">Usuário</label><input type="text" name="username" id="id_username" autocomplete="username" autofocus required value="{{ form.username.value|default:'' }}"></div>
+        <div class="campo"><label for="id_password">Senha</label>
+            <div class="senha-wrap"><input type="password" name="password" id="id_password" autocomplete="current-password" required><button type="button" data-mostrar="id_password" aria-pressed="false">Mostrar</button></div>
+            <p style="text-align:right;margin-top:6px"><a href="{% url 'password_reset' %}">Esqueceu sua senha?</a></p>
+        </div>
+        <button class="btn btn-bloco" type="submit">Entrar</button>
     </form>
-
-    <br>
-    
-    <p>Ainda não tem uma conta?</p>
-    <a href="{% url 'cadastro' %}">
-        <button type="button">Cadastrar Usuário</button>
-    </a>
-
+    <p class="rodape-form">Não tem uma conta? <a href="{% url 'cadastro' %}"><strong>Cadastre-se</strong></a></p>
+</div>
 {% endblock %}
+{% block scripts %}<script>
+document.querySelectorAll('[data-mostrar]').forEach(function (b) { b.addEventListener('click', function () {
+    var i = document.getElementById(b.dataset.mostrar), mostrar = i.type === 'password';
+    i.type = mostrar ? 'text' : 'password'; b.textContent = mostrar ? 'Ocultar' : 'Mostrar'; b.setAttribute('aria-pressed', mostrar); }); });
+</script>{% endblock %}

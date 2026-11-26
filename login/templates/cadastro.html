@@ -1,16 +1,14 @@
 {% extends 'template.html' %}
-
-{% block titulo %} Criar Conta {% endblock %}
-
+{% block titulo %}Criar conta{% endblock %}
 {% block conteudo %}
-    <h2>Criar Conta</h2>
-
-    <form method="POST">
-        {% csrf_token %}
-
-        {{form}}
-
-        <button type="submit">Cadastrar</button>
+<div class="pagina-titulo centro"><span class="sobretitulo">Novo usuário</span><h1>Crie sua conta</h1><p>Preencha seus dados para fazer parte da nossa plataforma.</p></div>
+<div class="card estreito">
+    <h2>Cadastrar-se</h2><p class="sub">Campos com <span class="obrig">*</span> são obrigatórios.</p>
+    <form method="post" novalidate>
+        {% csrf_token %}{% include '_erros.html' %}
+        {% for field in form %}{% include '_campo.html' %}{% endfor %}
+        <button class="btn btn-bloco" type="submit">Criar minha conta</button>
     </form>
-
+    <p class="rodape-form">Já possui uma conta? <a href="{% url 'login' %}"><strong>Fazer login</strong></a></p>
+</div>
 {% endblock %}

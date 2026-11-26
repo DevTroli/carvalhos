@@ -1,14 +1,14 @@
 {% extends 'template.html' %}
-
-{% block titulo %} Alterar Senha {% endblock %}
-
+{% block titulo %}Alterar senha{% endblock %}
 {% block conteudo %}
-     
-    <h2>Alterar Senha</h2>
-
-    <form method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="Alterar senha">
+<div class="pagina-titulo centro"><span class="sobretitulo">Segurança da conta</span><h1>Alterar Senha</h1><p>Atualize sua senha para manter sua conta protegida.</p></div>
+<div class="card estreito">
+    <h2>Nova senha</h2><p class="sub">Preencha os campos abaixo para alterar sua senha.</p>
+    <form method="post" novalidate>
+        {% csrf_token %}{% include '_erros.html' %}
+        {% for field in form %}{% include '_campo.html' %}{% endfor %}
+        <button class="btn btn-bloco" type="submit">Alterar minha senha</button>
     </form>
+</div>
+<p class="rodape-form"><a href="{% url 'perfil' %}">Voltar ao meu perfil</a></p>
 {% endblock %}

@@ -1,17 +1,26 @@
 {% extends 'template.html' %}
-
-{% block titulo %} Dashboard {% endblock %}
-
+{% block titulo %}Dashboard{% endblock %}
 {% block conteudo %}
-    <h2>Dashboard</h2>
+<section class="boas-vindas">
+    <h1>Olá, {{ user.first_name|default:user.username }}!</h1>
+    <p>O que você quer fazer?</p>
+</section>
 
-    <p>Olá, <strong>{{ user.username }}</strong>!</p>
+<div class="grade-2">
+    <a class="atalho" href="{% url 'perfil' %}"><h3>Editar Perfil</h3><p>Seus dados e senha.</p></a>
+    <a class="atalho" href="{% url 'pedidos' %}"><h3>Meus Pedidos</h3><p>Suas compras e o total.</p></a>
+    <a class="atalho" href="{% url 'produtos' %}"><h3>Produtos</h3><p>Ver o catálogo e comprar.</p></a>
+</div>
 
-    <p><a href="{% url 'perfil' %}">Meu Perfil</a></p>
-
-    <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <input type="submit" value="Sair">
-    </form>
-
+{% if gestor %}
+<h2 class="secao">Gestão da loja</h2>
+<div class="grade-2">
+    <a class="atalho" href="{% url 'servicos' %}"><h3>Produtos e estoque</h3><p>Preço, custo, margem e estoque.</p></a>
+    <a class="atalho" href="{% url 'entrada_estoque' %}"><h3>Entrada de estoque</h3><p>Vários produtos de uma vez, ou por CSV.</p></a>
+    <a class="atalho" href="{% url 'custos' %}"><h3>Custos</h3><p>Fixos e variáveis.</p></a>
+    <a class="atalho" href="{% url 'relatorios' %}"><h3>Relatórios</h3><p>Gráficos e Excel.</p></a>
+    <a class="atalho" href="{% url 'contatos' %}"><h3>Contatos</h3><p>Mensagens recebidas.</p></a>
+    <a class="atalho" href="{% url 'integrantes' %}"><h3>Equipe</h3><p>Integrantes da loja.</p></a>
+</div>
+{% endif %}
 {% endblock %}

@@ -1,33 +1,23 @@
 {% extends 'template.html' %}
-
-{% block titulo %}Contatos | Django{% endblock %}
-
+{% block titulo %}Contatos{% endblock %}
 {% block conteudo %}
-    <h2>Nossos Contatos</h2>
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>E-mail</th>
-                    <th>Telefone</th>
-                    <th>Mensagem</th>
-                    <th>Ação</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for contato in contatos %}
-                    <tr>
-                        <td>{{ contato.nome }}</td>
-                        <td>{{ contato.email }}</td>
-                        <td>{{ contato.telefone }}</td>
-                        <td>{{ contato.mensagem }}</td>
-                        <td><a class="delete-button" href="{% url 'del_contato' contato.id %}">Excluir</a></td>
-                    </tr>
-                {% empty %}
-                    <tr><td colspan="5">Nenhum contato enviado.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<div class="cab-flex">
+    <div><span class="sobretitulo">Gerenciamento</span><h1>Nossos Contatos</h1><p>Mensagens recebidas pelo formulário de contato.</p></div>
+    <div class="kpi escuro"><div class="rot">Total de contatos</div><div class="val">{{ contatos|length }}</div></div>
+</div>
+<div class="tabela-wrap card" style="padding:0;border-top-width:3px">
+<table>
+    <caption class="sr-only">Lista de contatos recebidos</caption>
+    <thead><tr><th scope="col">Nome</th><th scope="col">E-mail</th><th scope="col">Telefone</th><th scope="col">Mensagem</th><th scope="col">Ação</th></tr></thead>
+    <tbody>
+    {% for c in contatos %}
+        <tr>
+            <td>{{ c.nome }}</td><td><a href="mailto:{{ c.email }}">{{ c.email }}</a></td><td>{{ c.telefone|default:"—" }}</td><td>{{ c.mensagem|linebreaksbr }}</td>
+            <td><form method="post" action="{% url 'del_contato' c.id %}" onsubmit="return confirm('Excluir a mensagem de {{ c.nome|escapejs }}?');">{% csrf_token %}<button class="btn btn-perigo btn-pq" type="submit">Excluir</button></form></td>
+        </tr>
+    {% empty %}<tr><td colspan="5">Nenhum contato enviado.</td></tr>{% endfor %}
+    </tbody>
+</table>
+</div>
+<p class="rodape-form"><a href="{% url 'dashboard' %}">Voltar ao dashboard</a></p>
 {% endblock %}

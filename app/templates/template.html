@@ -1,27 +1,68 @@
-{% load static %}
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block titulo %}{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <meta name="description" content="Carvalhos Hub: vitrine e central de gestão de produtos, custos e estoque.">
+    <title>{% block titulo %}Carvalhos Hub{% endblock %} | Carvalhos</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=11">
+    <style>
+    .usuario{position:relative}
+    .usuario summary{list-style:none;cursor:pointer;color:#fff;padding:8px 12px;border:1px solid rgba(255,255,255,.6);border-radius:8px;font-size:.95rem}
+    .usuario summary::-webkit-details-marker{display:none}
+    .usuario summary::after{content:" \25BE"}
+    .usuario ul{position:absolute;right:0;top:calc(100% + 6px);min-width:190px;background:#fff;border-radius:10px;box-shadow:var(--sombra);list-style:none;padding:6px;z-index:50}
+    .usuario li a,.usuario li button{display:block;width:100%;text-align:left;color:var(--texto);padding:9px 12px;border-radius:6px;background:none;border:0;font:inherit;font-size:.95rem;cursor:pointer;text-decoration:none}
+    .usuario li a:hover,.usuario li button:hover{background:var(--mint-100);color:var(--verde-900)}
+    </style>
 </head>
 <body>
-    <header>
-        <h1><a href="{% url 'index' %}">DJ ango</a></h1>
-        <nav>
-            <a href="{% url 'login' %}">Login</a>
-            <a href="#">Quem Somos</a>
-            <a href="{% url 'produtos' %}">Produtos</a>
-            <a href="{% url 'servicos' %}">Serviços</a>
-            <a href="{% url 'add_contato' %}">Contato</a>
-        </nav>
-    </header>    
-    <main>
-        {% block conteudo %}
-        {% endblock %}
+    <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+    {% with atual=request.resolver_match.url_name %}
+    <header class="topo">
+        <div class="topo-in">
+            <a class="marca" href="{% url 'index' %}" aria-label="Carvalhos Hub, página inicial">
+                <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="16" fill="#4fd1a1"/><path d="M16 5c-3 2-6 4-6 8 0 2 1 3 2 4-2 0-4 2-4 4 0 3 3 4 6 4v2h4v-2c3 0 6-1 6-4 0-2-2-4-4-4 1-1 2-2 2-4 0-4-3-6-6-8z" fill="#082b1e"/></svg>
+                Carvalhos Hub
+            </a>
+            <nav aria-label="Menu principal">
+                <ul class="menu">
+                    <li><a href="{% url 'quem_somos' %}" {% if atual == 'quem_somos' %}aria-current="page"{% endif %}>Quem Somos</a></li>
+                    <li><a href="{% url 'produtos' %}" {% if atual == 'produtos' %}aria-current="page"{% endif %}>Produtos</a></li>
+                    <li><a href="{% url 'add_contato' %}" {% if atual == 'add_contato' %}aria-current="page"{% endif %}>Contato</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'pedidos' %}" {% if atual == 'pedidos' %}aria-current="page"{% endif %}>Meus pedidos</a></li>
+                        <li>
+                            <details class="usuario">
+                                <summary>{{ user.first_name|default:user.username }}</summary>
+                                <ul>
+                                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                                    <li><a href="{% url 'perfil' %}">Meu perfil</a></li>
+                                    <li>
+                                        <form method="post" action="{% url 'logout' %}">
+                                            {% csrf_token %}<button type="submit">Sair</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </details>
+                        </li>
+                    {% else %}
+                        <li><a class="destaque" href="{% url 'login' %}" {% if atual == 'login' %}aria-current="page"{% endif %}>Entrar</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+    {% endwith %}
+    <main id="conteudo" tabindex="-1">
+        {% if messages %}
+        <ul class="mensagens" role="status" aria-live="polite">
+            {% for m in messages %}<li class="msg {{ m.tags }}">{{ m }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+        {% block conteudo %}{% endblock %}
     </main>
-    
+    <footer class="rodape">Carvalhos Hub · Projeto acadêmico de Web III · Produtos também no <a href="https://lista.mercadolivre.com.br/_CustId_3436770351">Mercado Livre</a></footer>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

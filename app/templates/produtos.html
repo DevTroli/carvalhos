@@ -1,17 +1,46 @@
 {% extends 'template.html' %}
-
-{% block titulo %}Produtos | Django{% endblock %}
-
+{% block titulo %}Produtos{% endblock %}
 {% block conteudo %}
-    <h2>Produtos da API</h2>
-        {% for prod in produtos_api %}
-            <hr>
-            <img src="{{ prod.image }}" alt = "{{ prod.title }}">
-            <h3>{{ prod.title }} </h3>
-            <p>{{ prod.description }}</p>
-            <p>R$ {{ prod.price }}</p>
-        {% empty %}
-            <p>Nenhum produto encontrado na api.</p>
-        {% endfor %}
+<div class="pagina-titulo centro">
+    <h1>Produtos</h1>
+    <p>Produtos da Carvalhos e ofertas de lojas parceiras.</p>
+</div>
 
+<h2 class="secao">Produtos da Nossa Loja</h2>
+{% if not user.is_authenticated %}<p class="secao-sub"><a href="{% url 'login' %}?next={% url 'produtos' %}">Entre</a> para comprar.</p>{% endif %}
+<div class="vitrine">
+    {% for p in servicos %}
+    <article class="produto local">
+        <div class="foto">{% if p.imagem %}<img src="{{ p.imagem.url }}" alt="{{ p.nome }}">{% else %}<span aria-hidden="true">{{ p.nome|slice:":1" }}</span>{% endif %}</div>
+        <div class="corpo">
+            <h3>{{ p.nome }}</h3>
+            {% if p.categoria %}<span class="selo neutro">{{ p.categoria }}</span>{% endif %}
+            {% if p.descricao %}<p class="desc">{{ p.descricao }}</p>{% endif %}
+            <p class="preco">R$ {{ p.preco|floatformat:"2g" }}</p>
+            <div class="rodape-prod">
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'comprar' p.id %}">{% csrf_token %}<button class="btn btn-bloco" type="submit">Comprar<span class="sr-only"> {{ p.nome }}</span></button></form>
+                {% else %}
+                <a class="btn btn-sec btn-bloco" href="{% url 'login' %}?next={% url 'produtos' %}">Entrar para comprar</a>
+                {% endif %}
+                {% if p.link_ml %}<a class="btn btn-sec btn-bloco btn-pq" href="{{ p.link_ml }}" target="_blank" rel="noopener noreferrer">Ver no Mercado Livre</a>{% endif %}
+            </div>
+        </div>
+    </article>
+    {% empty %}<p class="vazio">Nenhum produto cadastrado ainda.</p>{% endfor %}
+</div>
+
+<h2 class="secao">Produtos das Lojas Parceiras</h2>
+{% if api_ok %}
+<div class="vitrine">
+    {% for prod in produtos_api %}
+    <article class="produto">
+        <div class="foto"><img src="{{ prod.image }}" alt="{{ prod.title }}" loading="lazy"></div>
+        <div class="corpo"><h3>{{ prod.title|truncatechars:50 }}</h3><p class="desc">{{ prod.description }}</p><p class="preco">US$ {{ prod.price|floatformat:"2g" }}</p></div>
+    </article>
+    {% empty %}<p class="vazio">Nenhum produto encontrado.</p>{% endfor %}
+</div>
+{% else %}
+<p class="msg warning" role="alert">As ofertas parceiras estão indisponíveis agora. Nossos produtos acima continuam disponíveis.</p>
+{% endif %}
 {% endblock %}
