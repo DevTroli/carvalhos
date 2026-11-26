@@ -31,7 +31,7 @@ class EntrarView(LoginView):
 def dashboard(request):
     # Garante perfil mesmo para contas criadas pelo createsuperuser.
     Perfil.objects.get_or_create(usuario=request.user)
-    return render(request, "dashboard.html")
+    return render(request, "dashboard.html", {"gestor": eh_administrador(request.user)})
 
 
 @login_required

@@ -1,33 +1,38 @@
 {% extends 'template.html' %}
 {% block titulo %}Relatórios{% endblock %}
 {% block conteudo %}
+<style>
+.graficos{grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:20px}
+.grafico-card{padding:22px}
+.grafico-box{height:340px}
+</style>
 <div class="cab-flex">
-    <div><span class="sobretitulo">Análise de dados</span><h1>Relatórios</h1><p>Acompanhe produtos, custos e estoque da Carvalhos.</p></div>
+    <h1>Relatórios</h1>
     <a class="btn" href="{% url 'exportar_excel' %}">Exportar para Excel</a>
 </div>
 
 <div class="kpis">
-    <div class="kpi"><div class="rot">Cadastrados</div><div class="val">{{ total }}</div><div class="det">Total de produtos</div></div>
-    <div class="kpi"><div class="rot">Disponíveis</div><div class="val">{{ ativos }}</div><div class="det">Produtos ativos</div></div>
-    <div class="kpi"><div class="rot">Indisponíveis</div><div class="val">{{ inativos }}</div><div class="det">Produtos inativos</div></div>
-</div>
-<h2 class="secao" style="margin-top:0">Custos e margem</h2>
-<p class="secao-sub">Custo fixo é por mês. Custo variável é por unidade vendida. <a href="{% url 'custos' %}">Gerenciar custos</a></p>
-<div class="kpis">
-    <div class="kpi"><div class="rot">Custo fixo do mês</div><div class="val">R$ {{ ind.custo_fixo|floatformat:2 }}</div></div>
-    <div class="kpi"><div class="rot">Variável por unidade</div><div class="val">R$ {{ ind.custo_variavel|floatformat:2 }}</div></div>
-    <div class="kpi"><div class="rot">Sobra por venda</div><div class="val">R$ {{ ind.margem_media|floatformat:2 }}</div><div class="det">média, já sem custo variável</div></div>
-    <div class="kpi escuro"><div class="rot">Ponto de equilíbrio</div><div class="val">{% if ind.ponto_equilibrio is not None %}{{ ind.ponto_equilibrio }} un.{% else %}—{% endif %}</div><div class="det">vendas por mês para cobrir o custo fixo</div></div>
-    <div class="kpi"><div class="rot">Dinheiro parado em estoque</div><div class="val">R$ {{ ind.valor_estoque|floatformat:2 }}</div></div>
-    <div class="kpi"><div class="rot">Precisam de reposição</div><div class="val">{{ ind.estoque_baixo }}</div><div class="det">produto(s) com estoque baixo</div></div>
+    <div class="kpi"><div class="rot">Produtos</div><div class="val">{{ total }}</div></div>
+    <div class="kpi"><div class="rot">Ativos</div><div class="val">{{ ativos }}</div></div>
+    <div class="kpi"><div class="rot">Inativos</div><div class="val">{{ inativos }}</div></div>
 </div>
 
-<h2 class="secao" style="margin-top:0">Visão geral</h2>
+<h2 class="secao" style="margin-top:0">Custos e margem</h2>
+<div class="kpis">
+    <div class="kpi"><div class="rot">Custo fixo (mês)</div><div class="val">R$ {{ ind.custo_fixo|floatformat:2 }}</div></div>
+    <div class="kpi"><div class="rot">Variável (unidade)</div><div class="val">R$ {{ ind.custo_variavel|floatformat:2 }}</div></div>
+    <div class="kpi"><div class="rot">Sobra por venda</div><div class="val">R$ {{ ind.margem_media|floatformat:2 }}</div></div>
+    <div class="kpi escuro"><div class="rot">Ponto de equilíbrio</div><div class="val">{% if ind.ponto_equilibrio is not None %}{{ ind.ponto_equilibrio }} un.{% else %}—{% endif %}</div><div class="det">vendas por mês</div></div>
+    <div class="kpi"><div class="rot">Valor em estoque</div><div class="val">R$ {{ ind.valor_estoque|floatformat:2 }}</div></div>
+    <div class="kpi"><div class="rot">Repor</div><div class="val">{{ ind.estoque_baixo }}</div><div class="det">com estoque baixo</div></div>
+</div>
+
+<h2 class="secao" style="margin-top:0">Gráficos</h2>
 <div class="graficos">
-    <section class="grafico-card"><h3>Produtos por categoria</h3><p class="sub">Quantidade em cada categoria</p><div class="grafico-box"><canvas id="g-cat" role="img" aria-label="Gráfico de barras de produtos por categoria"></canvas></div></section>
-    <section class="grafico-card"><h3>Situação dos produtos</h3><p class="sub">Ativos e inativos</p><div class="grafico-box"><canvas id="g-status" role="img" aria-label="Gráfico de rosca de produtos ativos e inativos"></canvas></div></section>
-    <section class="grafico-card"><h3>Quanto sobra por venda</h3><p class="sub">Preço de venda menos custo, em R$ por unidade</p><div class="grafico-box"><canvas id="g-custo" role="img" aria-label="Gráfico de barras da margem por produto"></canvas></div></section>
-    <section class="grafico-card"><h3>Estoque × mínimo</h3><p class="sub">Até 10 produtos ativos</p><div class="grafico-box"><canvas id="g-estoque" role="img" aria-label="Gráfico de barras do estoque atual e mínimo por produto"></canvas></div></section>
+    <section class="grafico-card"><h3>Produtos por categoria</h3><div class="grafico-box"><canvas id="g-cat" role="img" aria-label="Gráfico de barras de produtos por categoria"></canvas></div></section>
+    <section class="grafico-card"><h3>Ativos e inativos</h3><div class="grafico-box"><canvas id="g-status" role="img" aria-label="Gráfico de rosca de produtos ativos e inativos"></canvas></div></section>
+    <section class="grafico-card"><h3>Quanto sobra por venda (R$)</h3><div class="grafico-box"><canvas id="g-custo" role="img" aria-label="Gráfico de barras da margem por produto"></canvas></div></section>
+    <section class="grafico-card"><h3>Estoque e mínimo</h3><div class="grafico-box"><canvas id="g-estoque" role="img" aria-label="Gráfico de barras do estoque atual e mínimo por produto"></canvas></div></section>
 </div>
 <p class="rodape-form"><a href="{% url 'dashboard' %}">Voltar ao dashboard</a></p>
 {{ grafico|json_script:"dados-grafico" }}

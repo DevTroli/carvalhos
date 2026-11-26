@@ -2,22 +2,21 @@
 {% block titulo %}Início{% endblock %}
 {% block conteudo %}
 <section class="hero" aria-labelledby="tit-hero">
-    <span class="sobretitulo">Central de produtos Carvalhos</span>
-    <h1 id="tit-hero">Seus produtos, custos e estoque em um só lugar</h1>
-    <p>A Carvalhos vende no Mercado Livre e usa este site para divulgar os produtos e acompanhar quanto custa, quanto sobra em cada venda e o que precisa ser reposto.</p>
+    <span class="sobretitulo">Carvalhos E-commerce</span>
+    <h1 id="tit-hero">Produtos da Carvalhos, direto da loja</h1>
+    <p>Veja o catálogo, conheça a equipe e fale com a gente.</p>
     <div class="acoes">
         <a class="btn btn-mint" href="{% url 'produtos' %}">Ver produtos</a>
         <a class="btn btn-sec" href="{% url 'add_contato' %}">Fale conosco</a>
     </div>
 </section>
 
-<h2 class="secao">O que você encontra aqui</h2>
-<p class="secao-sub">Duas áreas, cada uma com um objetivo claro.</p>
-<div class="grade-2">
-    <article class="destaque-card"><h3>Vitrine pública</h3><p>Qualquer pessoa vê os produtos da Carvalhos, a equipe e pode mandar uma mensagem, sem criar conta.</p></article>
-    <article class="destaque-card"><h3>Área de gestão</h3><p>Com login: cadastro de produtos, preço de custo e de venda, estoque, custos fixos e variáveis e relatórios.</p></article>
-    <article class="destaque-card"><h3>Compra simples</h3><p>Clientes cadastrados adicionam produtos aos pedidos e acompanham o total em Meus Pedidos.</p></article>
-    <article class="destaque-card"><h3>Dados organizados</h3><p>Equipe em banco remoto, produtos e pedidos em banco local, e exportação para Excel.</p></article>
+<h2 class="secao">Como funciona</h2>
+<div class="grade">
+    <article class="destaque-card"><h3>Veja os produtos</h3><p>Catálogo aberto, sem precisar de conta.</p></article>
+    <article class="destaque-card"><h3>Crie sua conta</h3><p>Leva menos de um minuto.</p></article>
+    <article class="destaque-card"><h3>Compre e acompanhe</h3><p>Seus pedidos ficam em Meus Pedidos.</p></article>
+    <article class="destaque-card"><h3>Tire dúvidas</h3><p>Mande uma mensagem a qualquer momento.</p></article>
 </div>
 
 {% if destaques %}
@@ -32,5 +31,7 @@
 </div>
 {% endif %}
 
-<div class="faixa"><strong>Comece agora.</strong> Crie sua conta em poucos segundos para comprar e acompanhar seus pedidos. <a href="{% url 'cadastro' %}">Criar conta</a></div>
+{% if not user.is_authenticated %}
+<div class="faixa"><strong>Quer comprar?</strong> <a href="{% url 'cadastro' %}">Criar conta</a></div>
+{% endif %}
 {% endblock %}
